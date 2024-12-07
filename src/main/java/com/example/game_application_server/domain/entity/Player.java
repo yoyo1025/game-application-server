@@ -1,4 +1,4 @@
-package com.example.game_application_server.domain.entiry;
+package com.example.game_application_server.domain.entity;
 
 public class Player {
     // プレイヤーID
