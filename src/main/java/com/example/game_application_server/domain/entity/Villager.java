@@ -1,6 +1,6 @@
 package com.example.game_application_server.domain.entity;
 
-public class Villlager extends Player{
+public class Villager extends Player{
 
     // 村人が所持するポイント。初期値はゼロ。
     public int points;
@@ -8,7 +8,7 @@ public class Villlager extends Player{
     // 生死情報を表す。初期値はtrueで鬼に捕まるとfalseになる。
     public boolean isAlive;
 
-    public Villlager(int id, String name, boolean isConnected, boolean isOnBreak) {
+    public Villager(int id, String name, boolean isConnected, boolean isOnBreak) {
         super(id, name, isConnected, isOnBreak);
         this.points = 0;
         this.isAlive = true;
