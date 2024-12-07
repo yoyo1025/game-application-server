@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PlayerTest {
 
-    // コンストラクタとGettaerの動作確認を行うテスト
+    // コンストラクタとGetterの動作確認を行うテスト
     @Test
     void testPlayerConstructorAndGetter() {
         Player player = new Player(1, "John", true, false);
