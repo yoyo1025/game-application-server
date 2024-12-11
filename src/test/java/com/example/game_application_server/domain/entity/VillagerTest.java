@@ -9,7 +9,7 @@ class VillagerTest {
     // コンストラクタと初期値の動作確認を行うテスト
     @Test
     void testVillagerConstructorAndInitialValues() {
-        Villager villager = new Villager(1, "John", false, false);
+        Villager villager = new Villager(1, "John", true, false);
 
         // Assert: 初期値が正しく設定されているかを検証
         assertEquals(1, villager.getId(), "Villager ID should be 1");
