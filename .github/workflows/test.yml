@@ -1,0 +1,29 @@
+name: Build and Test Validation for game-application-server
+
+on:
+  push:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. リポジトリをチェックアウト
+      - uses: actions/checkout@v3
+
+      # 2. JDKをセットアップ
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 3. Mavenでビルドを実行
+      - name: Build the Project
+        run: mvn clean package
+        env:
+          MAVEN_OPTS: "-Dmaven.test.skip=true"
+
+      # 4. Mavenでテストを実行
+      - name: Run Tests
+        run: mvn clean test
