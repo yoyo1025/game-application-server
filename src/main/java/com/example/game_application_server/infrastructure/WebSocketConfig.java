@@ -12,15 +12,18 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        // 受け取り口の設定
+        // クライアントへの送り口の設定
         config.enableSimpleBroker("/topic");
-        // 送付先の設定
+        // クライアントからの受け取り口の設定
         config.setApplicationDestinationPrefixes("/app");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // クライアントが最初にWebSocketを繋ぐ際の繋ぎ口
-        registry.addEndpoint("/gs-guide-websocket").setAllowedOrigins("*");
+        registry.addEndpoint("/gs-guide-websocket")
+                .setAllowedOrigins("http://localhost:3000")
+                .withSockJS();
     }
 }
+
