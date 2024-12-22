@@ -6,6 +6,7 @@ import com.example.game_application_server.dto.PlayerInfo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,10 +14,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api")
 public class GameController {
+
+    public final SimpMessagingTemplate messagingTemplate;
+
+    // 接続中のユーザーIDを保存(sessionId -> userId)
+    public static final ConcurrentHashMap<String, String> connectedUsers = new ConcurrentHashMap<>();
+
+    public GameController(SimpMessagingTemplate messagingTemplate) {
+        this.messagingTemplate = messagingTemplate;
+    }
 
     @PostMapping("/init-player-info")
     public ResponseEntity<List<PlayerInfo>> initPlayerInfo(@RequestBody List<PlayerInfo> playersInfo) {
@@ -32,7 +43,14 @@ public class GameController {
     @MessageMapping("/hello")
     @SendTo("/topic/greetings")
     public Greeting greeting(HelloMessage message) throws Exception {
-        Thread.sleep(1000);
         return new Greeting("Hello, " + message.getName() + "! Message: " + message.getMessage());
+    }
+
+    public static void addUser(String sessionId, String userId) {
+        connectedUsers.put(sessionId, userId);
+    }
+
+    public static void removeUser(String sessionId) {
+        connectedUsers.remove(sessionId);
     }
 }
