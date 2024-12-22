@@ -17,6 +17,7 @@ public class WebSocketEventListener {
         this.messagingTemplate = messagingTemplate;
     }
 
+    // WebSocketが確立された（ユーザーがページを開き、接続した）タイミングで発火するイベント
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectEvent event) {
         // 接続時のイベント
@@ -31,9 +32,11 @@ public class WebSocketEventListener {
         }
     }
 
+    // ブラウザを閉じたりリロードしたり、もしくは通信が途切れたりしたことでWebSocket接続が切断された時に発火するイベント
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         // 切断時のイベント
+        // StompHeaderAccessor: STOMPプロトコルのメッセージヘッダーを解析するためのクラス
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         String sessionId = headerAccessor.getSessionId();
 
