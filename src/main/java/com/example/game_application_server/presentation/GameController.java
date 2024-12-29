@@ -25,6 +25,9 @@ public class GameController {
     // 接続中のユーザーIDを保存(sessionId -> userId)
     public static final ConcurrentHashMap<String, String> connectedUsers = new ConcurrentHashMap<>();
 
+    // 接続上限を定義
+    public static final int MAX_CONNECTIONS = 4;
+
     public GameController(SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
     }
@@ -46,8 +49,18 @@ public class GameController {
         return new Greeting("Hello, " + message.getName() + "! Message: " + message.getMessage());
     }
 
-    public static void addUser(String sessionId, String userId) {
+    // 接続中かチェック
+    public static boolean checkDuplicatedUser(String userId) {
+        return connectedUsers.containsValue(userId);
+    }
+
+    // ユーザーを追加する際に、上限に達していたら false を返す
+    public static boolean addUser(String sessionId, String userId) {
+        if (connectedUsers.size() >= MAX_CONNECTIONS) {
+            return false;
+        }
         connectedUsers.put(sessionId, userId);
+        return true;
     }
 
     public static void removeUser(String sessionId) {

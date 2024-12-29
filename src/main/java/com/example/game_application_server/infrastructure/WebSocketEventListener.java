@@ -25,11 +25,27 @@ public class WebSocketEventListener {
         String sessionId = headerAccessor.getSessionId();
         String userId = headerAccessor.getFirstNativeHeader("userId"); // ヘッダーからユーザーIDを取得
 
-        if (userId != null) {
-            GameController.addUser(sessionId, userId);
-            System.out.println("現在のプレイヤー数: " + GameController.connectedUsers.size());
-            System.out.println("User Connected: " + userId);
+//        if (userId != null) {
+//            // 重複ユーザーチェック
+//            if (GameController.checkDuplicatedUser(userId)) {
+//                System.out.println("重複ユーザー: " + userId);
+//                return;
+//            }
+//        }
+
+        // 上限チェック　&　ユーザー追加
+        boolean addedUser = GameController.addUser(sessionId, userId);
+        if (!addedUser) {
+            // 上限を超えている場合
+            System.out.println("接続上限（" + GameController.MAX_CONNECTIONS + "人）に達したため、接続を拒否:" + userId);
+
+            // 例外スローにより接続を強制的に終了させる
+            throw new IllegalStateException("Connected limit reached.");
         }
+
+        System.out.println("sessionId: " + sessionId + ", userId: " + userId);
+        GameController.addUser(sessionId, userId);
+        System.out.println("現在のプレイヤー数: " + GameController.connectedUsers.size());
     }
 
     // ブラウザを閉じたりリロードしたり、もしくは通信が途切れたりしたことでWebSocket接続が切断された時に発火するイベント
