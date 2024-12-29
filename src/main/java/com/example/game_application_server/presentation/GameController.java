@@ -1,13 +1,8 @@
 package com.example.game_application_server.presentation;
 
-import com.example.game_application_server.dto.Greeting;
-import com.example.game_application_server.dto.HelloMessage;
 import com.example.game_application_server.dto.PlayerInfo;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,12 +36,6 @@ public class GameController {
 
         // すべてのプレイヤー情報をレスポンスとして返す
         return ResponseEntity.ok(playersInfo);
-    }
-
-    @MessageMapping("/hello")
-    @SendTo("/topic/greetings")
-    public Greeting greeting(HelloMessage message) throws Exception {
-        return new Greeting("Hello, " + message.getName() + "! Message: " + message.getMessage());
     }
 
     // 接続中かチェック
