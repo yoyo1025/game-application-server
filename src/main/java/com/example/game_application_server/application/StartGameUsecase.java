@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StartGameUsecase {
-    public void excute(List<PlayerInfo> players) {
+    public GameState excute(List<PlayerInfo> players) {
         List<String> playerNameList = new ArrayList<>();
 
         // 村人をリストに追加
@@ -24,8 +24,8 @@ public class StartGameUsecase {
                 playerNameList.add(player.getUserName());
             }
         }
-        // デバッグ用出力
-        System.out.println(playerNameList);
+
+        return new GameState(playerNameList.get(0), playerNameList.get(1), playerNameList.get(2), playerNameList.get(3));
     }
 
 }
