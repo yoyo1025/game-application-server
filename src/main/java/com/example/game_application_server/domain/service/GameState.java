@@ -57,4 +57,14 @@ public class GameState {
         // ゲーム終了フラグの初期化
         this.isGameFinished = false;
     }
+
+    // プレイヤーの位置を設定する
+    public void setPlayerPosition(Player player, Position position) {
+        this.playerPositions.put(player, position);
+    }
+
+    // 引数で渡したプレイヤーの位置を返す
+    public Position getPlayerPosition(Player player) {
+        return this.playerPositions.get(player);
+    }
 }
