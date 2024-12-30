@@ -27,5 +27,4 @@ public class StartGameUsecase {
 
         return new GameState(playerNameList.get(0), playerNameList.get(1), playerNameList.get(2), playerNameList.get(3));
     }
-
 }

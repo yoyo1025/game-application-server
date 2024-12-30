@@ -1,6 +1,7 @@
 package com.example.game_application_server.presentation;
 
 import com.example.game_application_server.application.StartGameUsecase;
+import com.example.game_application_server.domain.service.GameState;
 import com.example.game_application_server.dto.GameStateDTO;
 import com.example.game_application_server.dto.PlayerInfo;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,8 @@ public class GameController {
 
     public List<PlayerInfo> playersInfo;
 
+    GameState gameState;
+
     public GameController(SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
     }
@@ -41,9 +44,17 @@ public class GameController {
     }
 
     @GetMapping("/start-game")
-    public void startGame() {
+    public GameStateDTO startGame() {
         StartGameUsecase startGameUsecase = new StartGameUsecase();
-        startGameUsecase.excute(playersInfo);
+        gameState = startGameUsecase.excute(playersInfo);
+
+        return gameState.toDTO();
+    }
+
+    @GetMapping("/end-game")
+    public GameStateDTO endGame() {
+        gameState.turn.nextTurn();
+        return gameState.toDTO();
     }
 
     // 接続中かチェック

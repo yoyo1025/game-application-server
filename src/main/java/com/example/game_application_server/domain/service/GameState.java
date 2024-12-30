@@ -1,6 +1,7 @@
 package com.example.game_application_server.domain.service;
 
 import com.example.game_application_server.domain.entity.*;
+import com.example.game_application_server.dto.GameStateDTO;
 
 import java.util.*;
 
@@ -146,7 +147,16 @@ public class GameState {
         }
         return count;
     }
+    public GameStateDTO toDTO() {
+        // プレイヤー位置情報の変換
+        Map<Integer, Position> simplifiedPlayerPositions = new HashMap<>();
+        playerPositions.forEach((player, position) -> {
+            simplifiedPlayerPositions.put(player.getId(), position); // Playerのidをキーとして利用
+        });
 
+        // DTOに変換
+        return new GameStateDTO(players, field, turn, simplifiedPlayerPositions);
+    }
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
