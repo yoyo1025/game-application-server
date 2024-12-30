@@ -47,4 +47,54 @@ class PlayerTest {
         assertEquals("Player { id = 1, name = John, isConnected = true, isOnBreak = false }",
                 toStringResult, "toString output should match");
     }
+
+    // equals メソッドの動作確認を行うテスト
+    @Test
+    void testEquals() {
+        Player player1 = new Player(1, "John", true, false);
+        Player player2 = new Player(1, "John", true, false);
+        Player player3 = new Player(2, "Jane", false, true);
+
+        // 同一IDを持つプレイヤーは等価とみなされる
+        assertEquals(player1, player2, "Players with the same ID should be equal");
+        // 異なるIDを持つプレイヤーは等価ではない
+        assertNotEquals(player1, player3, "Players with different IDs should not be equal");
+        // nullと比較すると等価ではない
+        assertNotEquals(player1, null, "Player should not be equal to null");
+        // 同一インスタンスは等価
+        assertEquals(player1, player1, "Same instance should be equal to itself");
+    }
+
+    // hashCode メソッドの動作確認を行うテスト
+    @Test
+    void testHashCode() {
+        Player player1 = new Player(1, "John", true, false);
+        Player player2 = new Player(1, "John", true, false);
+        Player player3 = new Player(2, "Jane", false, true);
+
+        // 同一IDを持つプレイヤーのハッシュコードは等しい
+        assertEquals(player1.hashCode(), player2.hashCode(), "Hash codes for players with the same ID should be equal");
+        // 異なるIDを持つプレイヤーのハッシュコードは異なる可能性が高い
+        assertNotEquals(player1.hashCode(), player3.hashCode(), "Hash codes for players with different IDs should not be equal");
+    }
+
+    // IDが負の値の場合のテスト
+    @Test
+    void testNegativeId() {
+        Player player = new Player(-1, "NegativeIDPlayer", true, false);
+
+        assertEquals(-1, player.getId(), "Player ID should allow negative values");
+        assertEquals("NegativeIDPlayer", player.getName(), "Player name should match");
+    }
+
+    // null値の扱いのテスト（Setterによる変更）
+    @Test
+    void testNullValues() {
+        Player player = new Player(1, "John", true, false);
+
+        // 名前をnullに設定
+        player.setName(null);
+
+        assertNull(player.getName(), "Player name should allow null values");
+    }
 }
