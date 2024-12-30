@@ -134,4 +134,18 @@ public class GameState {
         }
     }
 
+    public int getNumberOfAlivePlayers() {
+        int count = 0;
+        for (Player player : players) {
+            if (player instanceof Villager) { // 村人であるかを確認
+                Villager villager = (Villager) player;
+                if (villager.isAlive()) { // 生存しているかを確認
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+
 }
