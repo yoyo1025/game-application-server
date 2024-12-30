@@ -66,16 +66,34 @@ public class GameState {
     }
 
     // 移動できるマスを返す
-    public List<Position> calculatePossibleMoves(Player currentPlayer, List<Player> players, Map<Player, Position> playerPositions , int steps, int fieldSize) {
+    public List<Position> calculatePossibleMoves(Player currentPlayer, Map<Player, Position> playerPositions , int steps, int fieldSize) {
         Position currentPlayerPosition = playerPositions.get(currentPlayer);
         if (currentPlayerPosition == null) {
-            throw new IllegalArgumentException("Position not found");
+            throw new IllegalArgumentException("Position not found for current player");
         }
 
-        // Setを用いることで座標の重複を排除する
-        Set<Position> possiblePositions = new HashSet<>();
-        List<Position> occupiedPositions = new ArrayList<>(playerPositions.values());
+        // 現在のプレイヤーが鬼かどうかを判定
+        boolean isDemon = (currentPlayer instanceof Demon);
 
+        //　Setを用いることで座標の重複を排除する
+        Set<Position> possiblePositions = new HashSet<>();
+
+        // occupiedPositionsの作り方を分岐
+        // 鬼以外の場合のみ「他プレイヤーの位置」を埋める（移動できないようにする）
+        Set<Position> occupiedPositions = new HashSet<>();
+        if (!isDemon) {
+            // 全てのプレイヤーとその現在位置を順番に確認する
+            // entrySet()でMap内のすべてのキー（プレイヤー）と値（位置）をセットとして取得する
+            for (Map.Entry<Player, Position> entry : playerPositions.entrySet()) {
+                Player otherPlayer = entry.getKey();
+                // 自分自身は除外（同じマスにいても問題ないので）
+                if (!otherPlayer.equals(currentPlayer)) {
+                    occupiedPositions.add(entry.getValue());
+                }
+            }
+        }
+
+        // stepsの範囲内ですべての(dx, dy)を試し、4象限を考慮
         for (int dx = 0; dx <= steps; dx++) {
             for (int dy = 0; dy <= steps - dx; dy++) {
                 // 現在地は除外
@@ -86,19 +104,18 @@ public class GameState {
                 int x = currentPlayerPosition.getX();
                 int y = currentPlayerPosition.getY();
 
-                // 現在地から見た第一象限 (x+dx, y+dy)
+                // 第一象限 (x+dx, y+dy)
                 addPositionIfValid(possiblePositions, occupiedPositions, x + dx, y + dy, fieldSize);
 
-                // dx,dyが0でない場合のみ対称位置を計算
-                // 第2象限 (x-dx, y+dy)
+                // dxが0でなければ第二象限 (x-dx, y+dy)
                 if (dx != 0) {
                     addPositionIfValid(possiblePositions, occupiedPositions, x - dx, y + dy, fieldSize);
                 }
-                // 第3象限 (x-dx, y-dy)
+                // dx, dyともに0でなければ第三象限 (x-dx, y-dy)
                 if (dx != 0 && dy != 0) {
                     addPositionIfValid(possiblePositions, occupiedPositions, x - dx, y - dy, fieldSize);
                 }
-                // 第4象限 (x+dx, y-dy)
+                // dyが0でなければ第四象限 (x+dx, y-dy)
                 if (dy != 0) {
                     addPositionIfValid(possiblePositions, occupiedPositions, x + dx, y - dy, fieldSize);
                 }
@@ -108,7 +125,7 @@ public class GameState {
         return new ArrayList<>(possiblePositions);
     }
 
-    public void addPositionIfValid(Set<Position> possiblePositions, List<Position> occupiedPositions, int x, int y, int fieldSize) {
+    public void addPositionIfValid(Set<Position> possiblePositions, Set<Position> occupiedPositions, int x, int y, int fieldSize) {
         if (x >= 0 && x < fieldSize && y >= 0 && y < fieldSize) {
             Position newPosition = new Position(x, y);
             if (!occupiedPositions.contains(newPosition)) {
