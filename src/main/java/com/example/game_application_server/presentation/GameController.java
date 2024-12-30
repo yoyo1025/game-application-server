@@ -1,5 +1,6 @@
 package com.example.game_application_server.presentation;
 
+import com.example.game_application_server.application.StartGameUsecase;
 import com.example.game_application_server.dto.GameStateDTO;
 import com.example.game_application_server.dto.PlayerInfo;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +42,8 @@ public class GameController {
 
     @GetMapping("/start-game")
     public void startGame() {
-        System.out.println(this.playersInfo);
+        StartGameUsecase startGameUsecase = new StartGameUsecase();
+        startGameUsecase.excute(playersInfo);
     }
 
     // 接続中かチェック
