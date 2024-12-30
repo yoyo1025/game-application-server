@@ -1,5 +1,7 @@
 package com.example.game_application_server.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Objects;
 
 public class Position {
@@ -27,9 +29,10 @@ public class Position {
         this.y = y;
     }
 
+    @JsonIgnore
     public Position getPosition() {
         return new Position(this.x, this.y);
-    }
+    } // 無限ループを回避
 
     @Override
     public String toString() {
