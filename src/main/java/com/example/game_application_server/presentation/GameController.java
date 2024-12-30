@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:3000")
 public class GameController {
 
     public final SimpMessagingTemplate messagingTemplate;
