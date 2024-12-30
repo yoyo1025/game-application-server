@@ -2,10 +2,7 @@ package com.example.game_application_server.domain.service;
 
 import com.example.game_application_server.domain.entity.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GameState {
     public List<Player> players; // 各プレイヤーのリスト
@@ -67,4 +64,57 @@ public class GameState {
     public Position getPlayerPosition(Player player) {
         return this.playerPositions.get(player);
     }
+
+    // 移動できるマスを返す
+    public List<Position> calculatePossibleMoves(Player currentPlayer, List<Player> players, Map<Player, Position> playerPositions , int steps, int fieldSize) {
+        Position currentPlayerPosition = playerPositions.get(currentPlayer);
+        if (currentPlayerPosition == null) {
+            throw new IllegalArgumentException("Position not found");
+        }
+
+        // Setを用いることで座標の重複を排除する
+        Set<Position> possiblePositions = new HashSet<>();
+        List<Position> occupiedPositions = new ArrayList<>(playerPositions.values());
+
+        for (int dx = 0; dx <= steps; dx++) {
+            for (int dy = 0; dy <= steps - dx; dy++) {
+                // 現在地は除外
+                if (dx == 0 && dy == 0) {
+                    continue;
+                }
+
+                int x = currentPlayerPosition.getX();
+                int y = currentPlayerPosition.getY();
+
+                // 現在地から見た第一象限 (x+dx, y+dy)
+                addPositionIfValid(possiblePositions, occupiedPositions, x + dx, y + dy, fieldSize);
+
+                // dx,dyが0でない場合のみ対称位置を計算
+                // 第2象限 (x-dx, y+dy)
+                if (dx != 0) {
+                    addPositionIfValid(possiblePositions, occupiedPositions, x - dx, y + dy, fieldSize);
+                }
+                // 第3象限 (x-dx, y-dy)
+                if (dx != 0 && dy != 0) {
+                    addPositionIfValid(possiblePositions, occupiedPositions, x - dx, y - dy, fieldSize);
+                }
+                // 第4象限 (x+dx, y-dy)
+                if (dy != 0) {
+                    addPositionIfValid(possiblePositions, occupiedPositions, x + dx, y - dy, fieldSize);
+                }
+            }
+        }
+        // SetをListに変換して返す
+        return new ArrayList<>(possiblePositions);
+    }
+
+    public void addPositionIfValid(Set<Position> possiblePositions, List<Position> occupiedPositions, int x, int y, int fieldSize) {
+        if (x >= 0 && x < fieldSize && y >= 0 && y < fieldSize) {
+            Position newPosition = new Position(x, y);
+            if (!occupiedPositions.contains(newPosition)) {
+                possiblePositions.add(newPosition);
+            }
+        }
+    }
+
 }
