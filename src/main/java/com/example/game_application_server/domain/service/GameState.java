@@ -147,5 +147,36 @@ public class GameState {
         return count;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
 
+        // プレイヤー情報
+        sb.append("Players:\n");
+        for (Player player : players) {
+            sb.append("  ").append(player.toString()).append("\n");
+        }
+
+        // フィールド情報
+        sb.append("Field:\n");
+        sb.append("  Size: ").append(field.getSize()).append("\n");
+        sb.append("  Event Positions: ").append(field.getEventPositions()).append("\n");
+
+        // ターン情報
+        sb.append("Turn:\n");
+        sb.append("  Current Turn: ").append(turn.getCurrentTurn()).append("\n");
+        sb.append("  Total Turns: ").append(turn.getMaxTurn()).append("\n");
+
+        // プレイヤー位置情報
+        sb.append("Player Positions:\n");
+        for (Map.Entry<Player, Position> entry : playerPositions.entrySet()) {
+            sb.append("  ").append(entry.getKey().getName())
+                    .append(" -> ").append(entry.getValue().toString()).append("\n");
+        }
+
+        // ゲーム終了フラグ
+        sb.append("Game Finished: ").append(isGameFinished).append("\n");
+
+        return sb.toString();
+    }
 }
