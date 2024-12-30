@@ -17,7 +17,7 @@ class GameStateTest {
     @BeforeEach
     void setUp() {
         // テストごとに新しい GameState インスタンスを用意
-        gameState = new GameState();
+        gameState = new GameState("player1", "player2", "player3", "player4");
     }
 
     @Test
