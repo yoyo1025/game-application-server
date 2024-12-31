@@ -2,9 +2,11 @@ package com.example.game_application_server.domain.service;
 
 import com.example.game_application_server.domain.entity.*;
 import com.example.game_application_server.dto.GameStateDTO;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+@Component
 public class GameState {
     public List<Player> players; // 各プレイヤーのリスト
 

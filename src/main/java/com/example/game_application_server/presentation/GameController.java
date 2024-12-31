@@ -1,14 +1,19 @@
 package com.example.game_application_server.presentation;
 
+import com.example.game_application_server.application.DiceUsecase;
 import com.example.game_application_server.application.StartGameUsecase;
+import com.example.game_application_server.domain.entity.Dice;
+import com.example.game_application_server.domain.entity.Player;
 import com.example.game_application_server.domain.service.GameState;
 import com.example.game_application_server.dto.GameStateDTO;
 import com.example.game_application_server.dto.PlayerInfo;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
@@ -26,10 +31,18 @@ public class GameController {
 
     public List<PlayerInfo> playersInfo;
 
-    GameState gameState;
+    public StartGameUsecase startGameUsecase;
+    public DiceUsecase diceUsecase;
 
-    public GameController(SimpMessagingTemplate messagingTemplate) {
+
+    public GameController(
+            SimpMessagingTemplate messagingTemplate,
+            StartGameUsecase startGameUsecase,
+            DiceUsecase diceUsecase
+    ) {
         this.messagingTemplate = messagingTemplate;
+        this.startGameUsecase = startGameUsecase;
+        this.diceUsecase = diceUsecase;
     }
 
     @PostMapping("/init-player-info")
@@ -44,18 +57,49 @@ public class GameController {
         return ResponseEntity.ok(playersInfo);
     }
 
+//    @GetMapping("/start-game")
+//    public GameStateDTO startGame() {
+//        StartGameUsecase startGameUsecase = new StartGameUsecase();
+//        gameState = startGameUsecase.excute(playersInfo);
+//
+//        return gameState.toDTO();
+//    }
     @GetMapping("/start-game")
-    public GameStateDTO startGame() {
-        StartGameUsecase startGameUsecase = new StartGameUsecase();
-        gameState = startGameUsecase.excute(playersInfo);
-
-        return gameState.toDTO();
+    public ResponseEntity<?> startGame() {
+        try {
+            GameState gameState = startGameUsecase.excute(playersInfo);
+            return ResponseEntity.ok(gameState.toDTO());
+        } catch (IllegalStateException e) {
+            // すでにゲームがある状態で呼ばれたなど
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 
-    @GetMapping("/end-game")
-    public GameStateDTO endGame() {
-        gameState.turn.nextTurn();
-        return gameState.toDTO();
+
+//    @PostMapping("/dice")
+//    public int dice() {
+//        if (gameState.turn.currentPlayerIndex != リクエストで送られてきたid){
+//            あなたがサイコロ振る番ではないことをクライアントに通知
+//        }
+//        Dice dice = new Dice(4);
+//        return dice.roll();
+//    }
+
+    @PostMapping("/dice")
+    public ResponseEntity<?> dice(@RequestBody Map<String, Integer> requestBody) {
+        int userId = requestBody.get("userId");
+        try {
+            int diceRoll = diceUsecase.excute(userId);
+
+            // 必要であればWebSocketでブロードキャストする
+            messagingTemplate.convertAndSend("/topic/dice", Map.of("userId", userId, "diceRoll", diceRoll));
+
+            return ResponseEntity.ok(Map.of("diceRoll", diceRoll));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 
     // 接続中かチェック
