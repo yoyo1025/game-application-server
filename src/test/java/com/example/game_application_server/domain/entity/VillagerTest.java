@@ -9,7 +9,7 @@ class VillagerTest {
     // コンストラクタと初期値の動作確認を行うテスト
     @Test
     void testVillagerConstructorAndInitialValues() {
-        Villager villager = new Villager(1, "John", true, false);
+        Villager villager = new Villager(1,1001, "John", true, false);
 
         // Assert: 初期値が正しく設定されているかを検証
         assertEquals(1, villager.getId(), "Villager ID should be 1");
@@ -23,7 +23,7 @@ class VillagerTest {
     // addPoints() メソッドの動作確認を行うテスト
     @Test
     void testAddPoints() {
-        Villager villager = new Villager(1, "John", true, false);
+        Villager villager = new Villager(1, 1001, "John", true, false);
 
         // addPoints() を2回呼び出してポイントを加算
         villager.addPoints();
@@ -36,7 +36,7 @@ class VillagerTest {
     // setAlive() メソッドで生死状態を変更するテスト
     @Test
     void testSetAlive() {
-        Villager villager = new Villager(1, "John", true, false);
+        Villager villager = new Villager(1,1001, "John", true, false);
 
         // setAlive(false) を呼び出して死亡状態に設定
         villager.setAlive(false);
@@ -54,13 +54,13 @@ class VillagerTest {
     // toString() メソッドの出力確認を行うテスト
     @Test
     void testToString() {
-        Villager villager = new Villager(1, "John", true, false);
+        Villager villager = new Villager(1, 1001,"John", true, false);
 
         // toString() の結果を取得
         String toStringResult = villager.toString();
 
         // 期待される文字列と一致するかを検証
-        assertEquals("Villager { id = 1, name = John, isConnected = true, isOnBreak = false, points = 0, isAlive = true }",
+        assertEquals("Villager { id = 1, userId = 1001, name = John, isConnected = true, isOnBreak = false, points = 0, isAlive = true }",
                 toStringResult, "toString output should match the expected format");
     }
 }
