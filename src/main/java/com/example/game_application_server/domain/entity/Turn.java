@@ -5,6 +5,9 @@ public class Turn {
     public int max_turn;
     public int current_turn;
 
+    public int currentPlayerIndex = 1; // 1 ~ 4 の値
+
+    public int maxCurrentPlayerIndex = 4;
 
 
     //初期化のコンストラクタ
@@ -38,6 +41,18 @@ public class Turn {
             return true;
         }else{
             return false;
+        }
+    }
+
+    public int getCurrentPlayerIndex() {
+        return this.currentPlayerIndex;
+    }
+
+    // 次のプレイヤーインデックスに進める
+    public void nextPlayerIndex() {
+        this.currentPlayerIndex++;
+        if (this.currentPlayerIndex > 4) {
+            this.currentPlayerIndex = 1;
         }
     }
 

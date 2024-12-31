@@ -10,7 +10,7 @@ class DemonTest {
     @Test
     void testDemonConstructorAndInitialValues() {
         // Arrange & Act
-        Demon demon = new Demon(1, "Oni", true, false);
+        Demon demon = new Demon(1, 1004, "Oni", true, false);
 
         // Assert
         assertEquals(1, demon.getId(), "Demon ID should be 1");
@@ -23,8 +23,8 @@ class DemonTest {
     @Test
     void testCaptureVillager() {
         // Arrange
-        Demon demon = new Demon(1, "Oni", true, false);
-        Villager villager = new Villager(2, "John", true, false);
+        Demon demon = new Demon(1, 1004, "Oni", true, false);
+        Villager villager = new Villager(2,1004, "John", true, false);
 
         // Act
         demon.capture(villager);
@@ -37,13 +37,13 @@ class DemonTest {
     @Test
     void testToString() {
         // Arrange
-        Demon demon = new Demon(1, "Oni", true, false);
+        Demon demon = new Demon(1,1004, "Oni", true, false);
 
         // Act
         String toStringResult = demon.toString();
 
         // Assert
-        assertEquals("Demon { id = 1, name = Oni, isConnected = true, isOnBreak = false }",
+        assertEquals("Demon { id = 1, userId = 1004, name = Oni, isConnected = true, isOnBreak = false }",
                 toStringResult, "toString output should match the expected format");
     }
 }
