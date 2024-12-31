@@ -5,15 +5,20 @@ import java.util.Objects;
 public class Player {
     // プレイヤーID
     public int id;
-    // プレイヤー名
+
+    // ユーザーID
+    public int userId;
+
+    // プレイヤー(ユーザー)名
     public String name;
     // WebSocketの接続状態を表す。接続中ならtrue。
     public boolean isConnected;
     // 休憩中か否かを表す。休憩中ならtrue。
     public boolean isOnBreak;
 
-    public Player(int id, String name, boolean isConnected, boolean isOnBreak) {
+    public Player(int id, int userId, String name, boolean isConnected, boolean isOnBreak) {
         this.id = id;
+        this.userId = userId;
         this.name = name;
         this.isConnected = isConnected;
         this.isOnBreak = isOnBreak;
@@ -25,6 +30,14 @@ public class Player {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getUserId() {
+        return this.userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public String getName() {
@@ -66,6 +79,6 @@ public class Player {
 
     @Override
     public String toString() {
-        return "Player { id = " + id + ", name = " + name + ", isConnected = " + isConnected + ", isOnBreak = " + isOnBreak + " }";
+        return "Player { id = " + id + ", userId = " + userId + "name = " + name + ", isConnected = " + isConnected + ", isOnBreak = " + isOnBreak + " }";
     }
 }

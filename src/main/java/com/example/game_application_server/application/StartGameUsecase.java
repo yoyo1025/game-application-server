@@ -10,21 +10,30 @@ import java.util.List;
 
 public class StartGameUsecase {
     public GameState excute(List<PlayerInfo> players) {
-        List<String> playerNameList = new ArrayList<>();
+        List<PlayerInfo> playerList = new ArrayList<>();
 
         // 村人をリストに追加
         for (PlayerInfo player : players) {
             if (!player.isDemon()) {
-                playerNameList.add(player.getUserName());
+                playerList.add(player);
             }
         }
         // 鬼をリストの最後に追加
         for (PlayerInfo player : players) {
             if (player.isDemon()) {
-                playerNameList.add(player.getUserName());
+                playerList.add(player);
             }
         }
 
-        return new GameState(playerNameList.get(0), playerNameList.get(1), playerNameList.get(2), playerNameList.get(3));
+        return new GameState(
+                playerList.get(0).getUserId(),
+                playerList.get(1).getUserId(),
+                playerList.get(2).getUserId(),
+                playerList.get(3).getUserId(),
+                playerList.get(0).getUserName(),
+                playerList.get(1).getUserName(),
+                playerList.get(2).getUserName(),
+                playerList.get(3).getUserName()
+        );
     }
 }

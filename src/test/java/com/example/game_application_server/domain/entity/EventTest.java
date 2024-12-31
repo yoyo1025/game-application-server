@@ -28,8 +28,8 @@ class EventTest {
         event.dice = mockDice;
 
         // プレイヤーを初期化
-        player1 = new Player(1, "Alice", true, false);
-        player2 = new Player(2, "Bob", true, false);
+        player1 = new Player(1, 1001, "Alice", true, false);
+        player2 = new Player(2, 1002, "Bob", true, false);
 
         // プレイヤーリストを作成
         players = Arrays.asList(player1, player2);

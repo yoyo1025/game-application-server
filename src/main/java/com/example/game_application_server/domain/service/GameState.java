@@ -16,16 +16,25 @@ public class GameState {
 
     public boolean isGameFinished; // ゲームが終了したかのフラグ
 
-    public GameState(String player1Name, String player2Name, String player3Name, String player4Name) {
+    public GameState(
+            int user1Id,
+            int user2Id,
+            int user3Id,
+            int user4Id,
+            String player1Name,
+            String player2Name,
+            String player3Name,
+            String player4Name)
+    {
         // フィールド初期化
         this.players = new ArrayList<>();
         this.playerPositions = new HashMap<>();
 
         // プレイヤー初期化
-        Villager villager1 = new Villager(1, player1Name, true, false);
-        Villager villager2 = new Villager(2, player2Name, true, false);
-        Villager villager3 = new Villager(3, player3Name, true, false);
-        Demon demon = new Demon(4, player4Name, true, false);
+        Villager villager1 = new Villager(1, user1Id, player1Name, true, false);
+        Villager villager2 = new Villager(2, user2Id, player2Name, true, false);
+        Villager villager3 = new Villager(3, user3Id, player3Name, true, false);
+        Demon demon = new Demon(4, user4Id, player4Name, true, false);
         this.players.add(villager1);
         this.players.add(villager2);
         this.players.add(villager3);
