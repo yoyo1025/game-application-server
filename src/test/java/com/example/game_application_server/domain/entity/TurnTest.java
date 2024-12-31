@@ -45,6 +45,28 @@ public class TurnTest {
                 toStringResult, "toString output should match");
     }
 
+    // 現在のプレイヤーインデックスを正しく取得できることを確認するテスト
+    @Test
+    void testGetCurrentPlayerIndex() {
+        Turn turn = new Turn(10,0);
+        assertEquals(1, turn.getCurrentPlayerIndex(), "Initial player index should be 1");
+    }
 
+    // プレイヤーインデックスが正しく進むことを確認するテスト
+    @Test
+    void testNextPlayerIndex() {
+        Turn turn = new Turn(10,0);
 
+        turn.nextPlayerIndex();
+        assertEquals(2, turn.getCurrentPlayerIndex(), "Player index should be 2");
+
+        turn.nextPlayerIndex();
+        assertEquals(3, turn.getCurrentPlayerIndex(), "Player index should be 3");
+
+        turn.nextPlayerIndex();
+        assertEquals(4, turn.getCurrentPlayerIndex(), "Player index should be 4");
+
+        turn.nextPlayerIndex();
+        assertEquals(1, turn.getCurrentPlayerIndex(), "Player index should loop back to 1");
+    }
 }
