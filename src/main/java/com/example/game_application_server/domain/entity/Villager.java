@@ -32,7 +32,7 @@ public class Villager extends Player{
 
     @Override
     public String toString() {
-        return "Villager { id = " + super.id + ", userId " + super.userId + ", name = " + super.name +
+        return "Villager { id = " + super.id + ", userId = " + super.userId + ", name = " + super.name +
                 ", isConnected = " + super.isConnected + ", isOnBreak = " + super.isOnBreak +
                 ", points = " + this.points + ", isAlive = " + this.isAlive + " }";
     }

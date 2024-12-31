@@ -60,7 +60,7 @@ class VillagerTest {
         String toStringResult = villager.toString();
 
         // 期待される文字列と一致するかを検証
-        assertEquals("Villager { id = 1, name = John, isConnected = true, isOnBreak = false, points = 0, isAlive = true }",
+        assertEquals("Villager { id = 1, userId = 1001, name = John, isConnected = true, isOnBreak = false, points = 0, isAlive = true }",
                 toStringResult, "toString output should match the expected format");
     }
 }

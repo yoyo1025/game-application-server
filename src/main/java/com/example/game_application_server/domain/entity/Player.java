@@ -79,6 +79,6 @@ public class Player {
 
     @Override
     public String toString() {
-        return "Player { id = " + id + ", userId = " + userId + "name = " + name + ", isConnected = " + isConnected + ", isOnBreak = " + isOnBreak + " }";
+        return "Player { id = " + id + ", userId = " + userId + ", name = " + name + ", isConnected = " + isConnected + ", isOnBreak = " + isOnBreak + " }";
     }
 }

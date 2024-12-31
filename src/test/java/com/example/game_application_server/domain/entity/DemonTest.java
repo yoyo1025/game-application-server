@@ -43,7 +43,7 @@ class DemonTest {
         String toStringResult = demon.toString();
 
         // Assert
-        assertEquals("Demon { id = 1, name = Oni, isConnected = true, isOnBreak = false }",
+        assertEquals("Demon { id = 1, userId = 1004, name = Oni, isConnected = true, isOnBreak = false }",
                 toStringResult, "toString output should match the expected format");
     }
 }

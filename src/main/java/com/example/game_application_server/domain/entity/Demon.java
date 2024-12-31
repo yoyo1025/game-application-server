@@ -12,7 +12,7 @@ public class Demon extends Player{
 
     @Override
     public String toString() {
-        return "Demon { id = " + super.id + ", userId " + super.userId+ ", name = " + super.name +
+        return "Demon { id = " + super.id + ", userId = " + super.userId+ ", name = " + super.name +
                 ", isConnected = " + super.isConnected + ", isOnBreak = " + super.isOnBreak + " }";
     }
 }
