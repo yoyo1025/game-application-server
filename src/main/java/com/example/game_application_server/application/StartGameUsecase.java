@@ -4,11 +4,19 @@ import com.example.game_application_server.domain.entity.Demon;
 import com.example.game_application_server.domain.entity.Villager;
 import com.example.game_application_server.domain.service.GameState;
 import com.example.game_application_server.dto.PlayerInfo;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class StartGameUsecase {
+
+    public GameStateManager gameStateManager;
+
+    public StartGameUsecase(GameStateManager gameStateManager) {
+        this.gameStateManager = gameStateManager;
+    }
     public GameState excute(List<PlayerInfo> players) {
         List<PlayerInfo> playerList = new ArrayList<>();
 
@@ -25,7 +33,7 @@ public class StartGameUsecase {
             }
         }
 
-        return new GameState(
+        GameState newGameState = new GameState(
                 playerList.get(0).getUserId(),
                 playerList.get(1).getUserId(),
                 playerList.get(2).getUserId(),
@@ -35,5 +43,10 @@ public class StartGameUsecase {
                 playerList.get(2).getUserName(),
                 playerList.get(3).getUserName()
         );
+
+        // Managerに登録
+        gameStateManager.setGameState(newGameState);
+
+        return newGameState;
     }
 }
