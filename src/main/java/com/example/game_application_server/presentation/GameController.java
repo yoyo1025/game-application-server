@@ -57,17 +57,14 @@ public class GameController {
         return ResponseEntity.ok(playersInfo);
     }
 
-//    @GetMapping("/start-game")
-//    public GameStateDTO startGame() {
-//        StartGameUsecase startGameUsecase = new StartGameUsecase();
-//        gameState = startGameUsecase.excute(playersInfo);
-//
-//        return gameState.toDTO();
-//    }
     @GetMapping("/start-game")
     public ResponseEntity<?> startGame() {
         try {
             GameState gameState = startGameUsecase.excute(playersInfo);
+
+            // WebSocketを介してすべてのプレイヤーに通知
+            messagingTemplate.convertAndSend("/topic/game-state", gameState.toDTO());
+
             return ResponseEntity.ok(gameState.toDTO());
         } catch (IllegalStateException e) {
             // すでにゲームがある状態で呼ばれたなど
@@ -75,17 +72,16 @@ public class GameController {
                     .body(Map.of("error", e.getMessage()));
         }
     }
-
-
-//    @PostMapping("/dice")
-//    public int dice() {
-//        if (gameState.turn.currentPlayerIndex != リクエストで送られてきたid){
-//            あなたがサイコロ振る番ではないことをクライアントに通知
-//        }
-//        Dice dice = new Dice(4);
-//        return dice.roll();
-//    }
-
+    @GetMapping("/game-state")
+    public ResponseEntity<?> getGameState() {
+        try {
+            GameState gameState = startGameUsecase.gameStateManager.getGameState();
+            return ResponseEntity.ok(gameState.toDTO());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "No game is currently in progress."));
+        }
+    }
     @PostMapping("/dice")
     public ResponseEntity<?> dice(@RequestBody Map<String, Integer> requestBody) {
         int userId = requestBody.get("userId");
