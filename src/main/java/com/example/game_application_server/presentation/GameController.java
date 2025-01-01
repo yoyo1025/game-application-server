@@ -1,9 +1,12 @@
 package com.example.game_application_server.presentation;
 
+import com.example.game_application_server.application.CalcMovableSquareUsecase;
 import com.example.game_application_server.application.DiceUsecase;
+import com.example.game_application_server.application.GameStateManager;
 import com.example.game_application_server.application.StartGameUsecase;
 import com.example.game_application_server.domain.entity.Dice;
 import com.example.game_application_server.domain.entity.Player;
+import com.example.game_application_server.domain.entity.Position;
 import com.example.game_application_server.domain.service.GameState;
 import com.example.game_application_server.dto.GameStateDTO;
 import com.example.game_application_server.dto.PlayerInfo;
@@ -34,15 +37,19 @@ public class GameController {
     public StartGameUsecase startGameUsecase;
     public DiceUsecase diceUsecase;
 
+    public CalcMovableSquareUsecase calcMovableSquareUsecase;
+
 
     public GameController(
             SimpMessagingTemplate messagingTemplate,
             StartGameUsecase startGameUsecase,
-            DiceUsecase diceUsecase
+            DiceUsecase diceUsecase,
+            CalcMovableSquareUsecase calcMovableSquareUsecase
     ) {
         this.messagingTemplate = messagingTemplate;
         this.startGameUsecase = startGameUsecase;
         this.diceUsecase = diceUsecase;
+        this.calcMovableSquareUsecase = calcMovableSquareUsecase;
     }
 
     @PostMapping("/init-player-info")
@@ -87,11 +94,19 @@ public class GameController {
         int userId = requestBody.get("userId");
         try {
             int diceRoll = diceUsecase.excute(userId);
+            List<Position> movableSquares = calcMovableSquareUsecase.excute(diceRoll);
 
-            // 必要であればWebSocketでブロードキャストする
-            messagingTemplate.convertAndSend("/topic/dice", Map.of("userId", userId, "diceRoll", diceRoll));
+            messagingTemplate.convertAndSend("/topic/dice", Map.of(
+                    "userId", userId,
+                    "diceRoll", diceRoll,
+                    "movableSquares", movableSquares
+            ));
 
-            return ResponseEntity.ok(Map.of("diceRoll", diceRoll));
+            return ResponseEntity.ok(Map.of(
+                    "userId", userId,
+                    "diceRoll", diceRoll,
+                    "movableSquares", movableSquares
+            ));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("error", e.getMessage()));
