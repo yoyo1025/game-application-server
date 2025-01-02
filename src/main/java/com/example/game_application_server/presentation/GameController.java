@@ -39,18 +39,22 @@ public class GameController {
 
     public MoveUsecase moveUsecase;
 
+    public GetPointUsecase getPointUsecase;
+
     public GameController(
             SimpMessagingTemplate messagingTemplate,
             StartGameUsecase startGameUsecase,
             DiceUsecase diceUsecase,
             CalcMovableSquareUsecase calcMovableSquareUsecase,
-            MoveUsecase moveUsecase
+            MoveUsecase moveUsecase,
+            GetPointUsecase getPointUsecase
     ) {
         this.messagingTemplate = messagingTemplate;
         this.startGameUsecase = startGameUsecase;
         this.diceUsecase = diceUsecase;
         this.calcMovableSquareUsecase = calcMovableSquareUsecase;
         this.moveUsecase = moveUsecase;
+        this.getPointUsecase = getPointUsecase;
     }
 
     @PostMapping("/init-player-info")
@@ -132,6 +136,20 @@ public class GameController {
         }
     }
 
+    @PostMapping("/get-point")
+    public ResponseEntity<?> getPoint(@RequestBody Map<String, Integer> requestBody) {
+        int userId = requestBody.get("userId");
+        try {
+            GameState gameState = getPointUsecase.excute(userId);
+
+            messagingTemplate.convertAndSend("/topic/get-point", gameState.toDTO());
+
+            return ResponseEntity.ok(gameState.toDTO());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
 
     // 接続中かチェック
     public static boolean checkDuplicatedUser(String userId) {
