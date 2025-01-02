@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Service
 public class MoveUsecase {
-    private final GameStateManager gameStateManager;
+    public GameStateManager gameStateManager;
 
     public MoveUsecase(GameStateManager gameStateManager) {
         this.gameStateManager = gameStateManager;
