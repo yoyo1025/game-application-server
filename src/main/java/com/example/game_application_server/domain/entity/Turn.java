@@ -53,6 +53,7 @@ public class Turn {
         this.currentPlayerIndex++;
         if (this.currentPlayerIndex > 4) {
             this.currentPlayerIndex = 1;
+            this.current_turn++;
         }
     }
 

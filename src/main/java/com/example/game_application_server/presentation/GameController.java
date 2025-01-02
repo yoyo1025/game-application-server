@@ -1,14 +1,20 @@
 package com.example.game_application_server.presentation;
 
-import com.example.game_application_server.application.StartGameUsecase;
+import com.example.game_application_server.application.*;
+import com.example.game_application_server.domain.entity.Dice;
+import com.example.game_application_server.domain.entity.Player;
+import com.example.game_application_server.domain.entity.Position;
 import com.example.game_application_server.domain.service.GameState;
 import com.example.game_application_server.dto.GameStateDTO;
+import com.example.game_application_server.dto.MoveRequestDTO;
 import com.example.game_application_server.dto.PlayerInfo;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
@@ -26,10 +32,25 @@ public class GameController {
 
     public List<PlayerInfo> playersInfo;
 
-    GameState gameState;
+    public StartGameUsecase startGameUsecase;
+    public DiceUsecase diceUsecase;
 
-    public GameController(SimpMessagingTemplate messagingTemplate) {
+    public CalcMovableSquareUsecase calcMovableSquareUsecase;
+
+    public MoveUsecase moveUsecase;
+
+    public GameController(
+            SimpMessagingTemplate messagingTemplate,
+            StartGameUsecase startGameUsecase,
+            DiceUsecase diceUsecase,
+            CalcMovableSquareUsecase calcMovableSquareUsecase,
+            MoveUsecase moveUsecase
+    ) {
         this.messagingTemplate = messagingTemplate;
+        this.startGameUsecase = startGameUsecase;
+        this.diceUsecase = diceUsecase;
+        this.calcMovableSquareUsecase = calcMovableSquareUsecase;
+        this.moveUsecase = moveUsecase;
     }
 
     @PostMapping("/init-player-info")
@@ -45,18 +66,72 @@ public class GameController {
     }
 
     @GetMapping("/start-game")
-    public GameStateDTO startGame() {
-        StartGameUsecase startGameUsecase = new StartGameUsecase();
-        gameState = startGameUsecase.excute(playersInfo);
+    public ResponseEntity<?> startGame() {
+        try {
+            GameState gameState = startGameUsecase.excute(playersInfo);
 
-        return gameState.toDTO();
+            // WebSocketを介してすべてのプレイヤーに通知
+            messagingTemplate.convertAndSend("/topic/game-state", gameState.toDTO());
+
+            return ResponseEntity.ok(gameState.toDTO());
+        } catch (IllegalStateException e) {
+            // すでにゲームがある状態で呼ばれたなど
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+    @GetMapping("/game-state")
+    public ResponseEntity<?> getGameState() {
+        try {
+            GameState gameState = startGameUsecase.gameStateManager.getGameState();
+            return ResponseEntity.ok(gameState.toDTO());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "No game is currently in progress."));
+        }
+    }
+    @PostMapping("/dice")
+    public ResponseEntity<?> dice(@RequestBody Map<String, Integer> requestBody) {
+        int userId = requestBody.get("userId");
+        try {
+            int diceRoll = diceUsecase.excute(userId);
+            List<Position> movableSquares = calcMovableSquareUsecase.excute(diceRoll);
+
+            messagingTemplate.convertAndSend("/topic/dice", Map.of(
+                    "userId", userId,
+                    "diceRoll", diceRoll,
+                    "movableSquares", movableSquares
+            ));
+
+            return ResponseEntity.ok(Map.of(
+                    "userId", userId,
+                    "diceRoll", diceRoll,
+                    "movableSquares", movableSquares
+            ));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+    @PostMapping("/move")
+    public ResponseEntity<?> move(@RequestBody MoveRequestDTO requestBody) {
+        int userId = requestBody.getUserId();
+        Position targetPosition = requestBody.getTargetPosition();
+
+        try {
+            GameState gameState = moveUsecase.excute(targetPosition, userId);
+
+            // WebSocketで通知
+            messagingTemplate.convertAndSend("/topic/newPosition", gameState.toDTO());
+
+            // HTTPレスポンスとしても返却
+            return ResponseEntity.ok(gameState.toDTO());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 
-    @GetMapping("/end-game")
-    public GameStateDTO endGame() {
-        gameState.turn.nextTurn();
-        return gameState.toDTO();
-    }
 
     // 接続中かチェック
     public static boolean checkDuplicatedUser(String userId) {
