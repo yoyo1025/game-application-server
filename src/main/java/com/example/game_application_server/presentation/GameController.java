@@ -1,14 +1,12 @@
 package com.example.game_application_server.presentation;
 
-import com.example.game_application_server.application.CalcMovableSquareUsecase;
-import com.example.game_application_server.application.DiceUsecase;
-import com.example.game_application_server.application.GameStateManager;
-import com.example.game_application_server.application.StartGameUsecase;
+import com.example.game_application_server.application.*;
 import com.example.game_application_server.domain.entity.Dice;
 import com.example.game_application_server.domain.entity.Player;
 import com.example.game_application_server.domain.entity.Position;
 import com.example.game_application_server.domain.service.GameState;
 import com.example.game_application_server.dto.GameStateDTO;
+import com.example.game_application_server.dto.MoveRequestDTO;
 import com.example.game_application_server.dto.PlayerInfo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,17 +37,20 @@ public class GameController {
 
     public CalcMovableSquareUsecase calcMovableSquareUsecase;
 
+    public MoveUsecase moveUsecase;
 
     public GameController(
             SimpMessagingTemplate messagingTemplate,
             StartGameUsecase startGameUsecase,
             DiceUsecase diceUsecase,
-            CalcMovableSquareUsecase calcMovableSquareUsecase
+            CalcMovableSquareUsecase calcMovableSquareUsecase,
+            MoveUsecase moveUsecase
     ) {
         this.messagingTemplate = messagingTemplate;
         this.startGameUsecase = startGameUsecase;
         this.diceUsecase = diceUsecase;
         this.calcMovableSquareUsecase = calcMovableSquareUsecase;
+        this.moveUsecase = moveUsecase;
     }
 
     @PostMapping("/init-player-info")
@@ -112,6 +113,25 @@ public class GameController {
                     .body(Map.of("error", e.getMessage()));
         }
     }
+    @PostMapping("/move")
+    public ResponseEntity<?> move(@RequestBody MoveRequestDTO requestBody) {
+        int userId = requestBody.getUserId();
+        Position targetPosition = requestBody.getTargetPosition();
+
+        try {
+            GameState gameState = moveUsecase.excute(targetPosition, userId);
+
+            // WebSocketで通知
+            messagingTemplate.convertAndSend("/topic/newPosition", gameState.toDTO());
+
+            // HTTPレスポンスとしても返却
+            return ResponseEntity.ok(gameState.toDTO());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
 
     // 接続中かチェック
     public static boolean checkDuplicatedUser(String userId) {
