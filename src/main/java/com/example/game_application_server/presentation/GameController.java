@@ -41,13 +41,16 @@ public class GameController {
 
     public GetPointUsecase getPointUsecase;
 
+    public ChangeUserPositionUsecase changeUserPositionUsecase;
+
     public GameController(
             SimpMessagingTemplate messagingTemplate,
             StartGameUsecase startGameUsecase,
             DiceUsecase diceUsecase,
             CalcMovableSquareUsecase calcMovableSquareUsecase,
             MoveUsecase moveUsecase,
-            GetPointUsecase getPointUsecase
+            GetPointUsecase getPointUsecase,
+            ChangeUserPositionUsecase changeUserPositionUsecase
     ) {
         this.messagingTemplate = messagingTemplate;
         this.startGameUsecase = startGameUsecase;
@@ -55,6 +58,7 @@ public class GameController {
         this.calcMovableSquareUsecase = calcMovableSquareUsecase;
         this.moveUsecase = moveUsecase;
         this.getPointUsecase = getPointUsecase;
+        this.changeUserPositionUsecase=changeUserPositionUsecase;
     }
 
     @PostMapping("/init-player-info")
@@ -144,6 +148,26 @@ public class GameController {
 
             messagingTemplate.convertAndSend("/topic/get-point", gameState.toDTO());
 
+            return ResponseEntity.ok(gameState.toDTO());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    //イベントによる
+    @PostMapping("/ChangeUserPosition")
+    public ResponseEntity<?> changePosition(@RequestBody MoveRequestDTO requestBody) {
+        int userId = requestBody.getUserId();
+        Position targetPosition = requestBody.getTargetPosition();
+
+        try {
+            GameState gameState = changeUserPositionUsecase.excute(targetPosition, userId);
+
+            // WebSocketで通知
+            messagingTemplate.convertAndSend("/topic/changePosition", gameState.toDTO());
+
+            // HTTPレスポンスとしても返却
             return ResponseEntity.ok(gameState.toDTO());
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
