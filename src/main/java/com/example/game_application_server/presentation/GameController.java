@@ -159,7 +159,7 @@ public class GameController {
     }
 
     //イベントによる
-    @PostMapping("/ChangeUserPosition")
+    @PostMapping("/change-position")
     public ResponseEntity<?> changePosition(@RequestBody MoveRequestDTO requestBody) {
         int userId = requestBody.getUserId();
         Position targetPosition = requestBody.getTargetPosition();
@@ -168,7 +168,7 @@ public class GameController {
             GameState gameState = changeUserPositionUsecase.excute(targetPosition, userId);
 
             // WebSocketで通知
-            messagingTemplate.convertAndSend("/topic/changePosition", gameState.toDTO());
+            messagingTemplate.convertAndSend("/topic/change-position", gameState.toDTO());
 
             // HTTPレスポンスとしても返却
             return ResponseEntity.ok(gameState.toDTO());

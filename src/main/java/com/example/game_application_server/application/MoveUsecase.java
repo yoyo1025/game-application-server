@@ -1,5 +1,6 @@
 package com.example.game_application_server.application;
 
+import com.example.game_application_server.application.GameStateManager;
 import com.example.game_application_server.domain.entity.Demon;
 import com.example.game_application_server.domain.entity.Player;
 import com.example.game_application_server.domain.entity.Position;
@@ -46,8 +47,10 @@ public class MoveUsecase {
         // プレイヤーの位置を更新
         gameState.setPlayerPosition(currentPlayer, targetPosition);
 
-        // 次のプレイヤーのターンに移行
-        gameState.turn.nextPlayerIndex();
+        if (!gameState.field.eventPositions.contains(targetPosition)) {
+            // 次のプレイヤーのターンに移行
+            gameState.turn.nextPlayerIndex();
+        }
 
         // ---- ここからが「死んだプレイヤーのターンをスキップ」する処理 ----
         Player nextPlayer = gameState.players.get(gameState.turn.getCurrentPlayerIndex() - 1);
