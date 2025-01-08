@@ -42,6 +42,7 @@ public class GameController {
     public GetPointUsecase getPointUsecase;
 
     public ChangeUserPositionUsecase changeUserPositionUsecase;
+    public SkipTurnUsecase skipTurnUsecase;
 
     public GameController(
             SimpMessagingTemplate messagingTemplate,
@@ -50,7 +51,8 @@ public class GameController {
             CalcMovableSquareUsecase calcMovableSquareUsecase,
             MoveUsecase moveUsecase,
             GetPointUsecase getPointUsecase,
-            ChangeUserPositionUsecase changeUserPositionUsecase
+            ChangeUserPositionUsecase changeUserPositionUsecase,
+            SkipTurnUsecase skipTurnUsecase
     ) {
         this.messagingTemplate = messagingTemplate;
         this.startGameUsecase = startGameUsecase;
@@ -59,6 +61,7 @@ public class GameController {
         this.moveUsecase = moveUsecase;
         this.getPointUsecase = getPointUsecase;
         this.changeUserPositionUsecase=changeUserPositionUsecase;
+        this.skipTurnUsecase=skipTurnUsecase;
     }
 
     @PostMapping("/init-player-info")
@@ -166,6 +169,23 @@ public class GameController {
 
             // WebSocketで通知
             messagingTemplate.convertAndSend("/topic/changePosition", gameState.toDTO());
+
+            // HTTPレスポンスとしても返却
+            return ResponseEntity.ok(gameState.toDTO());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+    @PostMapping("/skip-turn")
+    public ResponseEntity<?> skipTurn(@RequestBody PlayerInfo requestBody) {
+        int targetPlayerId = requestBody.getUserId();
+
+        try {
+            GameState gameState = skipTurnUsecase.excute(targetPlayerId);
+
+            // WebSocketで通知
+            messagingTemplate.convertAndSend("/topic/skip-turn", gameState.toDTO());
 
             // HTTPレスポンスとしても返却
             return ResponseEntity.ok(gameState.toDTO());
