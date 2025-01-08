@@ -9,14 +9,18 @@ import org.springframework.stereotype.Service;
 public class SkipTurnUsecase {
     public GameStateManager gameStateManager;
 
-    public SkipTurnUsecase(GameStateManager gameStateManager){this.gameStateManager=gameStateManager;}
+    public SkipTurnUsecase(GameStateManager gameStateManager){
+        this.gameStateManager=gameStateManager;
+    }
 
     public GameState excute(int targetId){
         GameState gameState = gameStateManager.getGameState();
 
         Player targetPlayer = gameState.players.get(0);
-        for (int i=0;i<=4;i++){
-            if (targetId==gameState.players.get(i).userId)targetPlayer=gameState.players.get(i);
+        for (int i = 0; i < 4; i++){
+            if ( targetId == gameState.players.get(i).userId) {
+                targetPlayer = gameState.players.get(i);
+            }
         }
 
         //重複チェック

@@ -177,7 +177,7 @@ public class GameController {
                     .body(Map.of("error", e.getMessage()));
         }
     }
-    @PostMapping("/SkipTurn")
+    @PostMapping("/skip-turn")
     public ResponseEntity<?> skipTurn(@RequestBody PlayerInfo requestBody) {
         int targetPlayerId = requestBody.getUserId();
 
@@ -185,7 +185,7 @@ public class GameController {
             GameState gameState = skipTurnUsecase.excute(targetPlayerId);
 
             // WebSocketで通知
-            messagingTemplate.convertAndSend("/topic/skipTurn", gameState.toDTO());
+            messagingTemplate.convertAndSend("/topic/skip-turn", gameState.toDTO());
 
             // HTTPレスポンスとしても返却
             return ResponseEntity.ok(gameState.toDTO());
