@@ -1,5 +1,6 @@
 package com.example.game_application_server.application;
 
+import com.example.game_application_server.application.GameStateManager;
 import com.example.game_application_server.domain.entity.Player;
 import com.example.game_application_server.domain.entity.Position;
 import com.example.game_application_server.domain.service.GameState;
@@ -37,6 +38,9 @@ public class ChangeUserPositionUsecase {
             Position tmpPosition=gameState.getPlayerPosition(changedPlayer);
             gameState.setPlayerPosition(changedPlayer,gameState.getPlayerPosition(currentPlayer));
             gameState.setPlayerPosition(currentPlayer,tmpPosition);
+
+            gameState.turn.nextPlayerIndex();
+
             System.out.println("ChangePosition is done. "+currentPlayer.getName()+" & "+changedPlayer.getName());
         },() -> {throw new IllegalStateException("Select Unknown UserPosition");});//不明なポジションを入力する例外(フロント側で出来ないように制御するから起きない、、はず？)
 
