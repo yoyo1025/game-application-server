@@ -63,6 +63,12 @@ public class MoveUsecase {
                 gameState.turn.nextPlayerIndex();
                 nextPlayer = gameState.players.get(gameState.turn.getCurrentPlayerIndex() - 1);
                 skipCount++;
+                //次のプレイヤーが休み状態の場合そのプレイヤーのターンをスキップ＆休み状態を解除
+            } else if(nextPlayer.isOnBreak){
+                gameState.turn.nextPlayerIndex();
+                nextPlayer = gameState.players.get(gameState.turn.getCurrentPlayerIndex() - 1);
+                nextPlayer.setOnBreak(false);
+                skipCount++;
             } else {
                 // 生きている村人 or 鬼ならターンを確定
                 break;
