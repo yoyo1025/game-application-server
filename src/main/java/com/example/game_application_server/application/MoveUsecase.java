@@ -52,8 +52,6 @@ public class MoveUsecase {
             gameState.turn.nextPlayerIndex();
         }
 
-        // ---- ここからが「死んだプレイヤーのターンをスキップ」する処理 ----
-        Player nextPlayer = gameState.players.get(gameState.turn.getCurrentPlayerIndex() - 1);
 
         // 全員が死んでいるケースなどを避けるため、最大人数分だけループする
         int skipCount = 0;
@@ -61,10 +59,16 @@ public class MoveUsecase {
 
         // 全員が死んでいると無限ループになる可能性があるため、回数制限を設ける
         while (skipCount < maxPlayers) {
+            // ---- ここからが「死んだプレイヤーのターンをスキップ」する処理 ----
+            Player nextPlayer = gameState.players.get(gameState.turn.getCurrentPlayerIndex() - 1);
             // 次のプレイヤーが村人 かつ その村人が死んでいる場合はそのプレイヤーのターンをスキップ
             if (nextPlayer instanceof Villager && !((Villager) nextPlayer).isAlive()) {
                 gameState.turn.nextPlayerIndex();
-                nextPlayer = gameState.players.get(gameState.turn.getCurrentPlayerIndex() - 1);
+                skipCount++;
+            } else if (nextPlayer.isOnBreak) {
+                System.out.println(nextPlayer.getName() + " is currently on break, skipping...");
+                nextPlayer.setOnBreak(false);  // 次のターンではプレイできるようにフラグをリセット
+                gameState.turn.nextPlayerIndex();
                 skipCount++;
             } else {
                 // 生きている村人 or 鬼ならターンを確定
@@ -73,7 +77,6 @@ public class MoveUsecase {
         }
         return gameState;
     }
-
 }
 
 
