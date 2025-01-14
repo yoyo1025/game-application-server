@@ -49,7 +49,7 @@ public class GameState {
         this.field = new Field(9, eventPositions);
 
         // ターン初期化
-        this.turn = new Turn(15, 1);
+        this.turn = new Turn(5, 1);
 
         // プレイヤーの位置を初期化
         Position villager1FirstPosition = new Position(2, 2);

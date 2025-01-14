@@ -1,10 +1,7 @@
 package com.example.game_application_server.application;
 
 import com.example.game_application_server.application.GameStateManager;
-import com.example.game_application_server.domain.entity.Demon;
-import com.example.game_application_server.domain.entity.Player;
-import com.example.game_application_server.domain.entity.Position;
-import com.example.game_application_server.domain.entity.Villager;
+import com.example.game_application_server.domain.entity.*;
 import com.example.game_application_server.domain.service.GameState;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +11,11 @@ import java.util.Optional;
 @Service
 public class MoveUsecase {
     public GameStateManager gameStateManager;
+    public final EndGameUsecase endGameUsecase;
 
-    public MoveUsecase(GameStateManager gameStateManager) {
+    public MoveUsecase(GameStateManager gameStateManager, EndGameUsecase endGameUsecase) {
         this.gameStateManager = gameStateManager;
+        this.endGameUsecase = endGameUsecase;
     }
 
     public GameState excute(Position targetPosition, int userId) {
@@ -48,6 +47,12 @@ public class MoveUsecase {
         gameState.setPlayerPosition(currentPlayer, targetPosition);
 
         if (!gameState.field.eventPositions.contains(targetPosition)) {
+            // ★ ここで「ターンが15 & currentPlayerが鬼(Demon)」かを判定
+            if (gameState.turn.getCurrentTurn() == 5 && currentPlayer instanceof Demon) {
+                // ゲーム終了処理へ
+                endGameProcedure(gameState, (Demon) currentPlayer);
+            }
+
             // 次のプレイヤーのターンに移行
             gameState.turn.nextPlayerIndex();
         }
@@ -76,6 +81,32 @@ public class MoveUsecase {
             }
         }
         return gameState;
+    }
+
+    /**
+     * ★ 15ターン目に鬼が行動を終えた際のゲーム終了処理
+     */
+    private void endGameProcedure(GameState gameState, Demon demon) {
+        System.out.println("=== 15ターン目が終了。鬼が行動を終えました。ゲーム終了 ===");
+        // ここでResultを生成
+        Result result = new Result();
+        result.addDemon(demon);
+
+        // 全プレイヤーを確認し、Villagerなら追加
+        for (Player p : gameState.players) {
+            if (p instanceof Villager vill) {
+                result.addVillager(vill);
+            }
+        }
+
+        // ここでは、デモとして鬼の勝利とする (実際の勝敗ロジックに合わせて変更)
+        result.setDemonVictory(true); // 例: 鬼が勝ったとする
+
+        // EndGameUsecaseを呼び出してDBに保存
+        endGameUsecase.execute(result);
+
+        // 必要ならGameStateに「終了フラグ」を設定
+        gameState.isGameFinished = true;
     }
 }
 
