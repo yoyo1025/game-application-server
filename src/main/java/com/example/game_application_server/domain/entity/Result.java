@@ -35,18 +35,6 @@ public class Result {
         return demonVictory;
     }
 
-    //村人のランキングを返す
-//    public List<Villager> getVillagerRanking(){
-//        //ポイント数が大きい順に並び替え
-//        Collections.sort(villagers, new Comparator<Villager>() {
-//            @Override
-//            public int compare(Villager o1, Villager o2) {
-//                return Integer.compare(o2.getPoints(),o1.getPoints());
-//            }
-//        });
-//        return villagers;
-//    }
-
     public List<Villager> getVillagerRanking() {
         // 1) villagers をコピーして、新しいリストを作る
         List<Villager> sorted = new ArrayList<>(villagers);

@@ -92,15 +92,27 @@ public class MoveUsecase {
         Result result = new Result();
         result.addDemon(demon);
 
+        // 生存している村人がいるかを判定
+        boolean hasAliveVillager = false;
+
         // 全プレイヤーを確認し、Villagerなら追加
         for (Player p : gameState.players) {
             if (p instanceof Villager vill) {
                 result.addVillager(vill);
+                if (vill.isAlive) {
+                    hasAliveVillager = true;  // 生きている村人がいる
+                }
             }
         }
 
-        // ここでは、デモとして鬼の勝利とする (実際の勝敗ロジックに合わせて変更)
-        result.setDemonVictory(true); // 例: 鬼が勝ったとする
+        // 勝敗判定
+        if (hasAliveVillager) {
+            result.setDemonVictory(false);  // 生きている村人がいる → 村人の勝利
+            System.out.println("村人が勝利しました！生存者がいます。");
+        } else {
+            result.setDemonVictory(true);  // 全員捕まった → 鬼の勝利
+            System.out.println("鬼が勝利しました！全員が捕まりました。");
+        }
 
         // EndGameUsecaseを呼び出してDBに保存
         endGameUsecase.execute(result);
