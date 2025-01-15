@@ -8,6 +8,8 @@ public class Villager extends Player{
     // 生死情報を表す。初期値はtrueで鬼に捕まるとfalseになる。
     public boolean isAlive;
 
+    public int rank;
+
     public Villager(int id, int userId, String name, boolean isConnected, boolean isOnBreak) {
         super(id, userId, name, isConnected, isOnBreak);
         this.points = 0;
@@ -35,6 +37,13 @@ public class Villager extends Player{
         return "Villager { id = " + super.id + ", userId = " + super.userId + ", name = " + super.name +
                 ", isConnected = " + super.isConnected + ", isOnBreak = " + super.isOnBreak +
                 ", points = " + this.points + ", isAlive = " + this.isAlive + " }";
+    }
+
+    public int getRank() {
+        return rank;
+    }
+    public void setRank(int rank) {
+        this.rank = rank;
     }
 
 }
