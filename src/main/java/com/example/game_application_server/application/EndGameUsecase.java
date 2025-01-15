@@ -16,14 +16,15 @@ public class EndGameUsecase {
         this.battleRecordRepository = battleRecordRepository;
     }
 
-    public void execute(Result gameResult) {
+    public List<BattleRecord> execute(Result gameResult) {
         boolean demonVictory = gameResult.isDemonVictory();
 
         List<BattleRecord> records = new ArrayList<>();
 
-        List<Villager> villagerRanking = new ArrayList<>(gameResult.getVillagerRanking()); // コピーを作成
+        // 村人ランキングの取得
+        List<Villager> villagerRanking = new ArrayList<>(gameResult.getVillagerRanking());
         for (Villager villager : villagerRanking) {
-            boolean isWin = !demonVictory;
+            boolean isWin = !demonVictory; // 村人が勝ったかどうか
             int point = villager.getPoints();
             int ranking = villagerRanking.indexOf(villager) + 1;
 
@@ -38,6 +39,7 @@ public class EndGameUsecase {
             records.add(record);
         }
 
+        // 鬼の記録を追加
         if (gameResult.demon != null) {
             boolean isWin = demonVictory;
             int ranking = isWin ? 1 : villagerRanking.size() + 1;
@@ -53,7 +55,11 @@ public class EndGameUsecase {
             records.add(record);
         }
 
+        // DBに保存
         battleRecordRepository.saveAll(records);
+
+        // 生成したレコードを返す
+        return records;
     }
 
 }

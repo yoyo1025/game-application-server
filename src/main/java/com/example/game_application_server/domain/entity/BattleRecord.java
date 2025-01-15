@@ -1,14 +1,31 @@
 package com.example.game_application_server.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 
 public class BattleRecord {
+    @JsonProperty("user_id")
     private final Integer userId;
+
+    @JsonProperty("user_name")
     private final String userName;
-    private final String role;     // "Villager" or "Demon"
-    private final boolean isWin;   // 勝利かどうか
+
+    @JsonProperty("role")
+    private final String role;
+
+    @JsonProperty("is_win")
+    private final boolean isWin;
+
+    @JsonProperty("point")
     private final int point;
+
+    @JsonProperty("ranking")
     private final int ranking;
+
+    // ローカル日時のフィールド（ISO形式で表示）
+    @JsonProperty("created_at")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private final LocalDateTime createdAt;
 
     public BattleRecord(Integer userId, String userName, String role, boolean isWin, int point, int ranking) {
@@ -18,7 +35,7 @@ public class BattleRecord {
         this.isWin = isWin;
         this.point = point;
         this.ranking = ranking;
-        this.createdAt = LocalDateTime.now(); // 生成時刻を設定
+        this.createdAt = LocalDateTime.now(); // 生成時刻
     }
 
     public Integer getUserId() {

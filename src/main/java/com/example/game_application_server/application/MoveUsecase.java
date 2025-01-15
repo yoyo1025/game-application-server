@@ -3,8 +3,11 @@ package com.example.game_application_server.application;
 import com.example.game_application_server.application.GameStateManager;
 import com.example.game_application_server.domain.entity.*;
 import com.example.game_application_server.domain.service.GameState;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -13,9 +16,12 @@ public class MoveUsecase {
     public GameStateManager gameStateManager;
     public final EndGameUsecase endGameUsecase;
 
-    public MoveUsecase(GameStateManager gameStateManager, EndGameUsecase endGameUsecase) {
+    private final SimpMessagingTemplate messagingTemplate;
+
+    public MoveUsecase(GameStateManager gameStateManager, EndGameUsecase endGameUsecase, SimpMessagingTemplate messagingTemplate) {
         this.gameStateManager = gameStateManager;
         this.endGameUsecase = endGameUsecase;
+        this.messagingTemplate = messagingTemplate;
     }
 
     public GameState excute(Position targetPosition, int userId) {
@@ -87,37 +93,37 @@ public class MoveUsecase {
      * ★ 15ターン目に鬼が行動を終えた際のゲーム終了処理
      */
     private void endGameProcedure(GameState gameState, Demon demon) {
-        System.out.println("=== 15ターン目が終了。鬼が行動を終えました。ゲーム終了 ===");
-        // ここでResultを生成
+        System.out.println("=== 15ターン目が終了(デモ:5ターン)。鬼が行動を終えました。ゲーム終了 ===");
+
+        // 結果オブジェクト
         Result result = new Result();
         result.addDemon(demon);
 
-        // 生存している村人がいるかを判定
         boolean hasAliveVillager = false;
-
-        // 全プレイヤーを確認し、Villagerなら追加
         for (Player p : gameState.players) {
             if (p instanceof Villager vill) {
                 result.addVillager(vill);
                 if (vill.isAlive) {
-                    hasAliveVillager = true;  // 生きている村人がいる
+                    hasAliveVillager = true;
                 }
             }
         }
 
         // 勝敗判定
         if (hasAliveVillager) {
-            result.setDemonVictory(false);  // 生きている村人がいる → 村人の勝利
+            result.setDemonVictory(false);
             System.out.println("村人が勝利しました！生存者がいます。");
         } else {
-            result.setDemonVictory(true);  // 全員捕まった → 鬼の勝利
+            result.setDemonVictory(true);
             System.out.println("鬼が勝利しました！全員が捕まりました。");
         }
 
-        // EndGameUsecaseを呼び出してDBに保存
-        endGameUsecase.execute(result);
+        // DB保存 → リストを受け取り
+        List<BattleRecord> battleRecords = endGameUsecase.execute(result);
 
-        // 必要ならGameStateに「終了フラグ」を設定
+        // ★ Spring による自動シリアライズで送信
+        messagingTemplate.convertAndSend("/topic/end-game", battleRecords);
+
         gameState.isGameFinished = true;
     }
 }
